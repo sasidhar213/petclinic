@@ -1,0 +1,12 @@
+pipeline {
+    agent any
+    stages {
+        stage("envvar"){
+            steps {
+                echo 'GIT BRANCH IS' + env.GIT_BRANCH
+                echo "GIT BRANCH Value is ${GIT_BRANCH}"
+                echo sh(returnStdout: true, script: 'set')
+            }
+        }
+    }
+}

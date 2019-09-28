@@ -1,0 +1,23 @@
+@Library('jenkins-library@master') _
+
+pipeline {
+    agent any
+    stages {
+        stage('Git Checkout') {
+            steps {
+                Gitcheckout(
+                    branch: "master",
+                    url: "https://dev.azure.com/KrishnaBhimanavarjula/UNUM-TFS/_git/spring-petclinic",
+                    credentialid : "778e9c88-7f73-4b2b-890e-2613d538d4c4"
+                )
+            }
+        }
+        
+        stage('list env var'){
+            steps{
+                echo 'list of env variables'
+                echo bat(returnStdout: true, script: 'set')
+            }
+        }
+    }
+}

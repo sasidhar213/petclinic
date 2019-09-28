@@ -1,0 +1,50 @@
+pipeline{
+    agent any
+    stages{
+        stage('TeamsNotifications'){
+            steps{
+                 office365ConnectorSend color: 'Green', message: "${currentBuild.currentResult} ${env.JOB_NAME} ${env.BUILD_NUMBER} " , status: "Started", webhookUrl: "${env.TeamsWebhook}"
+            }
+        }
+
+        
+        
+        
+        
+        stage("checkout SCM"){
+            steps{
+                git branch: 'master',
+                    credentialsId: 'ff6d0503-2925-46b9-ad5b-cc2540e24fac',
+                    url: 'https://dev.azure.com/KrishnaBhimanavarjula/UNUM-TFS/_git/spring-petclinic'
+            }
+        }     
+        stage("Build"){
+            steps {
+                echo 'Clean Build'
+                bat 'mvn clean compile'
+            }
+        }
+        stage("Test") {
+            steps {
+                echo 'Testing'
+                bat 'mvn clean test'
+            }
+        }
+        stage("sonarqubeAnalysis"){
+            steps{
+                bat 'mvn clean compile sonar:sonar -Dsonar.host.url="http://sonar-dev.centralus.cloudapp.azure.com:9000" -Dproject.settings="sonar-project.properties" -Dsonar.credentials="bd790923-628a-4428-bc4a-f4f6fe3e1073" '
+            }
+        }
+        stage('Package') {
+            steps {
+                echo 'Packaging'
+                bat 'mvn clean package -DskipTests'
+            }
+        }
+        stage('CompletedNotifications'){
+            steps{
+                 office365ConnectorSend color: 'Green', message: "${currentBuild.currentResult} ${env.JOB_NAME} ${env.BUILD_NUMBER} " , status: "${currentBuild.currentResult}", webhookUrl: "${env.TeamsWebhook}"
+            }
+        }
+    }
+}
